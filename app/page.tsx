@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { motion } from "framer-motion"
 import { Eraser } from "lucide-react"
+import ReactMarkdown from 'react-markdown'
 
 const brushCursor = `data:image/svg+xml;base64,${btoa(
   '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"/></svg>'
@@ -210,7 +211,9 @@ const CalligraphyCritique = () => {
                     className="p-6 rounded-lg bg-white/5"
                   >
                     <h3 className="text-xl font-semibold mb-4 text-purple-300">点评结果：</h3>
-                    <p className="whitespace-pre-wrap text-gray-200">{critique}</p>
+                    <div className="prose prose-invert prose-purple max-w-none">
+                      <ReactMarkdown>{critique}</ReactMarkdown>
+                    </div>
                   </motion.div>
                 )}
               </div>
