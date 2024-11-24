@@ -35,9 +35,11 @@ const CalligraphyCritique = () => {
     if (!container) return
 
     const dpr = window.devicePixelRatio || 1
+    const isMobile = window.innerWidth <= 768
+    const desiredWidth = isMobile ? container.clientWidth : container.clientWidth * 0.5
 
-    canvas.width = container.clientWidth * dpr
-    canvas.height = container.clientHeight * dpr
+    canvas.width = desiredWidth * dpr
+    canvas.height = (desiredWidth * 1.2) * dpr
 
     const context = canvas.getContext('2d')
     if (!context) return
@@ -45,7 +47,7 @@ const CalligraphyCritique = () => {
     context.scale(dpr, dpr)
     context.lineCap = 'round'
     context.strokeStyle = '#000000'
-    context.lineWidth = 3
+    context.lineWidth = 2
     contextRef.current = context
   }
 
@@ -56,8 +58,11 @@ const CalligraphyCritique = () => {
     const container = canvas.parentElement
     if (!container) return
 
-    canvas.width = container.clientWidth
-    canvas.height = container.clientHeight
+    const isMobile = window.innerWidth <= 768
+    const desiredWidth = isMobile ? container.clientWidth : container.clientWidth * 0.5
+
+    canvas.width = desiredWidth
+    canvas.height = desiredWidth * 1.2
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
@@ -83,25 +88,33 @@ const CalligraphyCritique = () => {
     ctx.stroke()
   }
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current
     if (!canvas || !contextRef.current) return
 
     const rect = canvas.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    const x = 'touches' in e 
+      ? e.touches[0].clientX - rect.left 
+      : e.clientX - rect.left
+    const y = 'touches' in e 
+      ? e.touches[0].clientY - rect.top 
+      : e.clientY - rect.top
 
     contextRef.current.beginPath()
     contextRef.current.moveTo(x, y)
     setIsDrawing(true)
   }
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     if (!isDrawing || !contextRef.current || !canvasRef.current) return
 
     const rect = canvasRef.current.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    const x = 'touches' in e 
+      ? e.touches[0].clientX - rect.left 
+      : e.clientX - rect.left
+    const y = 'touches' in e 
+      ? e.touches[0].clientY - rect.top 
+      : e.clientY - rect.top
 
     contextRef.current.lineTo(x, y)
     contextRef.current.stroke()
@@ -153,22 +166,22 @@ const CalligraphyCritique = () => {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12">
+    <main className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4 md:py-12">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <Card className="w-full max-w-4xl mx-auto backdrop-blur-lg bg-white/10 border-none shadow-2xl">
-          <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 text-transparent bg-clip-text">
+          <CardHeader className="text-center p-4 md:p-6">
+            <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 text-transparent bg-clip-text">
               每日一练
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4 md:space-y-6">
             <div className="relative group">
-              <div className="w-full h-[400px] bg-transparent">
-                <div className="relative w-1/2 h-full mx-auto">
+              <div className="w-full h-auto bg-transparent">
+                <div className="relative w-full md:w-1/2 mx-auto" style={{ aspectRatio: '1/1.2' }}>
                   <div className="absolute inset-0 border border-gray-200 bg-white">
                     <canvas
                       ref={gridCanvasRef}
@@ -180,6 +193,9 @@ const CalligraphyCritique = () => {
                       onMouseMove={draw}
                       onMouseUp={stopDrawing}
                       onMouseLeave={stopDrawing}
+                      onTouchStart={startDrawing}
+                      onTouchMove={draw}
+                      onTouchEnd={stopDrawing}
                       className="absolute inset-0 w-full h-full"
                       style={{ 
                         touchAction: 'none',
@@ -189,22 +205,22 @@ const CalligraphyCritique = () => {
                   </div>
                 </div>
               </div>
-              <div className="mt-6 w-1/2 mx-auto space-y-6">
-                <div className="flex gap-4">
-                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <div className="mt-4 md:mt-6 w-full md:w-1/2 mx-auto space-y-4 md:space-y-6">
+                <div className="flex gap-3 md:gap-4">
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1">
                     <Button 
                       onClick={handleSubmit}
                       disabled={loading}
-                      className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3"
+                      className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-2 md:py-3"
                     >
                       {loading ? '分析中...' : '获取点评'}
                     </Button>
                   </motion.div>
-                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1">
                     <Button 
                       onClick={clearCanvas}
                       variant="outline"
-                      className="w-full"
+                      className="w-full py-2 md:py-3"
                     >
                       清除
                     </Button>
@@ -215,10 +231,12 @@ const CalligraphyCritique = () => {
                   <motion.div 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="p-6 rounded-lg bg-white/5"
+                    className="p-4 md:p-6 rounded-lg bg-white/5"
                   >
-                    <h3 className="text-xl font-semibold mb-4 text-purple-300">点评结果：</h3>
-                    <div className="prose prose-invert prose-purple max-w-none">
+                    <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 text-purple-300">
+                      点评结果：
+                    </h3>
+                    <div className="prose prose-invert prose-purple max-w-none prose-sm md:prose-base">
                       <ReactMarkdown>{critique}</ReactMarkdown>
                     </div>
                   </motion.div>
