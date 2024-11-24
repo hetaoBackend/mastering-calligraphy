@@ -4,7 +4,6 @@ import { useRef, useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { motion } from "framer-motion"
-import { Eraser } from "lucide-react"
 import ReactMarkdown from 'react-markdown'
 
 const brushCursor = `data:image/svg+xml;base64,${btoa(
@@ -91,9 +90,6 @@ const CalligraphyCritique = () => {
     const rect = canvas.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
-
-    const scaleX = canvas.width / rect.width
-    const scaleY = canvas.height / rect.height
 
     contextRef.current.beginPath()
     contextRef.current.moveTo(x, y)
@@ -194,15 +190,26 @@ const CalligraphyCritique = () => {
                 </div>
               </div>
               <div className="mt-6 w-1/2 mx-auto space-y-6">
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button 
-                    onClick={handleSubmit}
-                    disabled={loading}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3"
-                  >
-                    {loading ? '分析中...' : '获取点评'}
-                  </Button>
-                </motion.div>
+                <div className="flex gap-4">
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button 
+                      onClick={handleSubmit}
+                      disabled={loading}
+                      className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3"
+                    >
+                      {loading ? '分析中...' : '获取点评'}
+                    </Button>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button 
+                      onClick={clearCanvas}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      清除
+                    </Button>
+                  </motion.div>
+                </div>
 
                 {critique && (
                   <motion.div 
