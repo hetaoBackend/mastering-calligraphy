@@ -34,15 +34,15 @@ const CalligraphyCritique = () => {
     const container = canvas.parentElement
     if (!container) return
 
+    const containerWidth = container.clientWidth
+    const containerHeight = container.clientHeight
     const dpr = window.devicePixelRatio || 1
-    const isMobile = window.innerWidth <= 768
-    const desiredWidth = isMobile ? container.clientWidth : container.clientWidth * 0.5
 
-    canvas.width = desiredWidth * dpr
-    canvas.height = desiredWidth * dpr
+    canvas.width = containerWidth * dpr
+    canvas.height = containerHeight * dpr
 
-    canvas.style.width = `${desiredWidth}px`
-    canvas.style.height = `${desiredWidth}px`
+    canvas.style.width = `${containerWidth}px`
+    canvas.style.height = `${containerHeight}px`
 
     const context = canvas.getContext('2d')
     if (!context) return
@@ -61,11 +61,11 @@ const CalligraphyCritique = () => {
     const container = canvas.parentElement
     if (!container) return
 
-    const isMobile = window.innerWidth <= 768
-    const desiredWidth = isMobile ? container.clientWidth : container.clientWidth * 0.5
+    const containerWidth = container.clientWidth
+    const containerHeight = container.clientHeight
 
-    canvas.width = desiredWidth
-    canvas.height = desiredWidth
+    canvas.width = containerWidth
+    canvas.height = containerHeight
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
