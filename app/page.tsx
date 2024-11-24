@@ -39,7 +39,10 @@ const CalligraphyCritique = () => {
     const desiredWidth = isMobile ? container.clientWidth : container.clientWidth * 0.5
 
     canvas.width = desiredWidth * dpr
-    canvas.height = (desiredWidth * 1.2) * dpr
+    canvas.height = desiredWidth * dpr
+
+    canvas.style.width = `${desiredWidth}px`
+    canvas.style.height = `${desiredWidth}px`
 
     const context = canvas.getContext('2d')
     if (!context) return
@@ -62,7 +65,7 @@ const CalligraphyCritique = () => {
     const desiredWidth = isMobile ? container.clientWidth : container.clientWidth * 0.5
 
     canvas.width = desiredWidth
-    canvas.height = desiredWidth * 1.2
+    canvas.height = desiredWidth
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
@@ -93,15 +96,16 @@ const CalligraphyCritique = () => {
     if (!canvas || !contextRef.current) return
 
     const rect = canvas.getBoundingClientRect()
-    const x = 'touches' in e 
-      ? e.touches[0].clientX - rect.left 
-      : e.clientX - rect.left
-    const y = 'touches' in e 
-      ? e.touches[0].clientY - rect.top 
-      : e.clientY - rect.top
+    const dpr = window.devicePixelRatio || 1
+    
+    const scaleX = canvas.width / rect.width
+    const scaleY = canvas.height / rect.height
+    
+    const x = ('touches' in e ? e.touches[0].clientX : e.clientX) - rect.left
+    const y = ('touches' in e ? e.touches[0].clientY : e.clientY) - rect.top
 
     contextRef.current.beginPath()
-    contextRef.current.moveTo(x, y)
+    contextRef.current.moveTo(x * scaleX / dpr, y * scaleY / dpr)
     setIsDrawing(true)
   }
 
@@ -109,14 +113,15 @@ const CalligraphyCritique = () => {
     if (!isDrawing || !contextRef.current || !canvasRef.current) return
 
     const rect = canvasRef.current.getBoundingClientRect()
-    const x = 'touches' in e 
-      ? e.touches[0].clientX - rect.left 
-      : e.clientX - rect.left
-    const y = 'touches' in e 
-      ? e.touches[0].clientY - rect.top 
-      : e.clientY - rect.top
+    const dpr = window.devicePixelRatio || 1
+    
+    const scaleX = canvasRef.current.width / rect.width
+    const scaleY = canvasRef.current.height / rect.height
+    
+    const x = ('touches' in e ? e.touches[0].clientX : e.clientX) - rect.left
+    const y = ('touches' in e ? e.touches[0].clientY : e.clientY) - rect.top
 
-    contextRef.current.lineTo(x, y)
+    contextRef.current.lineTo(x * scaleX / dpr, y * scaleY / dpr)
     contextRef.current.stroke()
   }
 
@@ -181,7 +186,7 @@ const CalligraphyCritique = () => {
           <CardContent className="space-y-4 md:space-y-6">
             <div className="relative group">
               <div className="w-full h-auto bg-transparent">
-                <div className="relative w-full md:w-1/2 mx-auto" style={{ aspectRatio: '1/1.2' }}>
+                <div className="relative w-full md:w-1/2 mx-auto" style={{ aspectRatio: '1/1' }}>
                   <div className="absolute inset-0 border border-gray-200 bg-white">
                     <canvas
                       ref={gridCanvasRef}
