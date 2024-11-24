@@ -14,11 +14,13 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@tailwindcss/typography": "^0.5.15",
     "ai": "^4.0.3",
+    "ali-oss": "^6.21.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.11.17",
     "lucide-react": "^0.460.0",
     "next": "14.2.16",
+    "openai": "^4.73.0",
     "react": "^18",
     "react-dom": "^18",
     "react-markdown": "^9.0.1",
@@ -26,6 +28,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@types/ali-oss": "^6.16.11",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
