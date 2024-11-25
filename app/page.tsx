@@ -238,42 +238,47 @@ const CalligraphyCritique = () => {
       container.style.position = 'absolute'
       container.style.left = '-9999px'
       container.style.background = 'white'
-      container.style.padding = '30px'
-      container.style.width = '400px'
+      container.style.padding = '40px'
+      container.style.width = '800px'
+      container.style.fontFamily = 'system-ui, -apple-system, sans-serif'
       
       // Add title
       const titleDiv = document.createElement('div')
-      titleDiv.style.fontSize = '24px'
+      titleDiv.style.fontSize = '32px'
       titleDiv.style.fontWeight = 'bold'
-      titleDiv.style.color = '#000'
-      titleDiv.style.marginBottom = '20px'
+      titleDiv.style.color = '#1a1a1a'
+      titleDiv.style.marginBottom = '30px'
+      titleDiv.style.textAlign = 'center'
       titleDiv.textContent = '书法练习'
       container.appendChild(titleDiv)
 
       // Add grid container
       const gridContainer = document.createElement('div')
       gridContainer.style.position = 'relative'
-      gridContainer.style.width = '100%'
-      gridContainer.style.aspectRatio = '1'
-      gridContainer.style.border = '1px solid #000'
+      gridContainer.style.width = '500px'
+      gridContainer.style.height = '500px'
+      gridContainer.style.margin = '0 auto 30px auto'
+      gridContainer.style.border = '2px solid #e5e5e5'
+      gridContainer.style.borderRadius = '8px'
+      gridContainer.style.overflow = 'hidden'
       
-      // Add grid lines
+      // Add grid lines with improved visibility
       const gridLines = document.createElement('div')
       gridLines.style.position = 'absolute'
       gridLines.style.inset = '0'
       gridLines.style.background = `
-        linear-gradient(to right, transparent 49.9%, #000 50%, #000 50.1%, transparent 50.2%),
-        linear-gradient(to bottom, transparent 49.9%, #000 50%, #000 50.1%, transparent 50.2%)
+        linear-gradient(to right, transparent 49.9%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 50.1%, transparent 50.2%),
+        linear-gradient(to bottom, transparent 49.9%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 50.1%, transparent 50.2%)
       `
       gridContainer.appendChild(gridLines)
       
-      // Add diagonal lines
+      // Add diagonal lines with improved visibility
       const diagonalLines = document.createElement('div')
       diagonalLines.style.position = 'absolute'
       diagonalLines.style.inset = '0'
       diagonalLines.style.background = `
-        linear-gradient(45deg, transparent 49.9%, #000 50%, #000 50.1%, transparent 50.2%),
-        linear-gradient(-45deg, transparent 49.9%, #000 50%, #000 50.1%, transparent 50.2%)
+        linear-gradient(45deg, transparent 49.9%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 50.1%, transparent 50.2%),
+        linear-gradient(-45deg, transparent 49.9%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 50.1%, transparent 50.2%)
       `
       gridContainer.appendChild(diagonalLines)
       
@@ -289,46 +294,55 @@ const CalligraphyCritique = () => {
       
       container.appendChild(gridContainer)
       
-      // Add the critique content
+      // Add the critique content with improved styling
       if (resultRef.current) {
         const critiqueDiv = document.createElement('div')
-        critiqueDiv.style.color = '#000'
+        critiqueDiv.style.color = '#1a1a1a'
         critiqueDiv.style.marginTop = '20px'
-        critiqueDiv.style.padding = '20px'
-        critiqueDiv.style.background = '#f3f4f6'
-        critiqueDiv.style.borderRadius = '8px'
+        critiqueDiv.style.padding = '30px'
+        critiqueDiv.style.background = '#f8f9fa'
+        critiqueDiv.style.borderRadius = '12px'
+        critiqueDiv.style.fontSize = '16px'
+        critiqueDiv.style.lineHeight = '1.8'
+        critiqueDiv.style.maxWidth = '100%'
+        critiqueDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)'
         critiqueDiv.innerHTML = resultRef.current.innerHTML
         
-        // Fix the critique text color and styles
+        // Fix the critique text styles
         const elements = critiqueDiv.getElementsByTagName('*')
         for (let i = 0; i < elements.length; i++) {
           const element = elements[i] as HTMLElement
-          element.style.color = '#000'
-          // Remove any Tailwind classes that might interfere
+          element.style.color = '#1a1a1a'
+          element.style.fontSize = '16px'
+          element.style.lineHeight = '1.8'
+          if (element.tagName === 'STRONG' || element.tagName === 'B') {
+            element.style.color = '#000'
+            element.style.fontWeight = '600'
+          }
+          // Remove any Tailwind classes
           element.className = ''
         }
         
         container.appendChild(critiqueDiv)
       }
       
-      // Add watermark
+      // Add watermark with improved styling
       const watermark = document.createElement('div')
-      watermark.style.marginTop = '20px'
+      watermark.style.marginTop = '30px'
       watermark.style.textAlign = 'center'
       watermark.style.color = '#666'
       watermark.style.fontSize = '14px'
-      watermark.textContent = '由 AI 书法助手生成'
+      watermark.style.padding = '10px'
+      watermark.style.borderTop = '1px solid #eee'
+      watermark.textContent = '由 CalligraphyAI 生成'
       container.appendChild(watermark)
       
       document.body.appendChild(container)
       
-      // Generate the image
+      // Generate the image with higher quality
       const canvas = await html2canvas(container, {
         backgroundColor: '#ffffff',
-        scale: 2,
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
+        scale: 2
       })
       
       const blob = await new Promise<Blob>((resolve) => {
