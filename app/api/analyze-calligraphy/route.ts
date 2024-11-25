@@ -19,7 +19,6 @@ const prompt = `请你作为一位书法老师，对同学提交的练字作业�
 ## Examples
 
 ### Example 1
-您练习的字：永
 
 - **笔画结构**：笔画规范，撇的起笔可更流畅。评分：7/10
 - **字形布局**：布局匀称，捺的收笔稍加练习。评分：6/10
@@ -28,13 +27,15 @@ const prompt = `请你作为一位书法老师，对同学提交的练字作业�
 - **总体评分**：6/10
 
 ### Example 2
-您练习的字：和
 
 - **笔画结构**：笔画标准，横折钩处理得当。评分：8/10
 - **字形布局**：布局合理，结构平衡。评分：9/10
 - **用笔技巧**：流畅均匀，角度得当。评分：8/10
 - **个性风格**：有个人风格，撇捺有创新。评分：7/10
-- **总体评分**：8/10`
+- **总体评分**：8/10
+
+## Constraints
+- 请使用亲切、鼓励的语气进行点评。`
 
 export async function POST(req: NextRequest) {
   const encoder = new TextEncoder();
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest) {
 
     // Start the AI request
     const response = await openai.chat.completions.create({
-      model: "qwen-vl-max",
+      model: "qwen-vl-max-0809",
       messages: [
         {
           role: "user",
