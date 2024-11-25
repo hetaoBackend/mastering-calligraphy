@@ -21,6 +21,7 @@ const CalligraphyCritique = () => {
   const [critique, setCritique] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const contextRef = useRef<CanvasRenderingContext2D | null>(null)
+  const [streamingCritique, setStreamingCritique] = useState('')
 
   useEffect(() => {
     initCanvas()
@@ -143,29 +144,29 @@ const CalligraphyCritique = () => {
 
   const handleSubmit = async () => {
     if (!canvasRef.current) return
-
     setLoading(true)
+    setStreamingCritique('')
     
-    // Create a temporary canvas with white background
-    const tempCanvas = document.createElement('canvas')
-    const tempCtx = tempCanvas.getContext('2d')
-    if (!tempCtx) return
-
-    // Set the same dimensions as the original canvas
-    tempCanvas.width = canvasRef.current.width
-    tempCanvas.height = canvasRef.current.height
-
-    // Fill with white background
-    tempCtx.fillStyle = '#FFFFFF'
-    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height)
-
-    // Draw the original canvas content on top
-    tempCtx.drawImage(canvasRef.current, 0, 0)
-
-    // Get the image data with white background
-    const imageData = tempCanvas.toDataURL('image/png')
-
     try {
+      // Create a temporary canvas with white background
+      const tempCanvas = document.createElement('canvas')
+      const tempCtx = tempCanvas.getContext('2d')
+      if (!tempCtx) return
+
+      // Set the same dimensions as the original canvas
+      tempCanvas.width = canvasRef.current.width
+      tempCanvas.height = canvasRef.current.height
+
+      // Fill with white background
+      tempCtx.fillStyle = '#FFFFFF'
+      tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height)
+
+      // Draw the original canvas content on top
+      tempCtx.drawImage(canvasRef.current, 0, 0)
+
+      // Get the image data with white background
+      const imageData = tempCanvas.toDataURL('image/png')
+
       // First, upload the image to your CDN
       const uploadResponse = await fetch('/api/upload-image', {
         method: 'POST',
@@ -181,8 +182,8 @@ const CalligraphyCritique = () => {
 
       const { url: cdnUrl } = await uploadResponse.json()
 
-      // Then, analyze the calligraphy using the CDN URL
-      const analyzeResponse = await fetch('/api/analyze-calligraphy', {
+      // Update the analyze request to handle streaming
+      const response = await fetch('/api/analyze-calligraphy', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -190,15 +191,35 @@ const CalligraphyCritique = () => {
         body: JSON.stringify({ imageUrl: cdnUrl }),
       })
 
-      if (!analyzeResponse.ok) {
-        throw new Error('Failed to analyze calligraphy')
-      }
+      if (!response.ok) throw new Error('Failed to analyze calligraphy')
 
-      const result = await analyzeResponse.json()
-      setCritique(result.critique)
+      const reader = response.body?.getReader()
+      if (!reader) throw new Error('No reader available')
+
+      // Read the streaming response
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        // Convert the chunk to text
+        const chunk = new TextDecoder().decode(value)
+        const lines = chunk.split('\n')
+
+        // Process each line
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6))
+              setStreamingCritique(prev => prev + (data.content || ''))
+            } catch (e) {
+              console.error('Error parsing JSON:', e)
+            }
+          }
+        }
+      }
     } catch (error) {
       console.error('Error:', error)
-      setCritique('分析失败，请重试。')
+      setStreamingCritique('分析失败，请重试。')
     } finally {
       setLoading(false)
     }
@@ -266,7 +287,7 @@ const CalligraphyCritique = () => {
                   </motion.div>
                 </div>
 
-                {critique && (
+                {streamingCritique && (
                   <motion.div 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -276,7 +297,7 @@ const CalligraphyCritique = () => {
                       点评结果：
                     </h3>
                     <div className="prose prose-invert prose-purple max-w-none prose-sm md:prose-base">
-                      <ReactMarkdown>{critique}</ReactMarkdown>
+                      <ReactMarkdown>{streamingCritique}</ReactMarkdown>
                     </div>
                   </motion.div>
                 )}
