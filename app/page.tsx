@@ -334,7 +334,7 @@ const CalligraphyCritique = () => {
       watermark.style.fontSize = '14px'
       watermark.style.padding = '10px'
       watermark.style.borderTop = '1px solid #eee'
-      watermark.textContent = '由 CalligraphyAI 生成'
+      watermark.textContent = 'Powered By hetao7@pku.edu.cn'
       container.appendChild(watermark)
       
       document.body.appendChild(container)
@@ -420,7 +420,7 @@ const CalligraphyCritique = () => {
                       disabled={loading}
                       className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-2 md:py-3"
                     >
-                      {loading ? '分析中...' : '获取点评'}
+                      {loading ? '分析中...' : '帮我点评'}
                     </Button>
                   </motion.div>
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1">
