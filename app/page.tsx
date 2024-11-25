@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { motion } from "framer-motion"
 import ReactMarkdown from 'react-markdown'
+import html2canvas from 'html2canvas'
 
 const brushCursor = `data:image/svg+xml;base64,${btoa(
   '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"/></svg>'
@@ -18,10 +19,10 @@ const CalligraphyCritique = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const gridCanvasRef = useRef<HTMLCanvasElement>(null)
   const [isDrawing, setIsDrawing] = useState(false)
-  const [critique, setCritique] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const contextRef = useRef<CanvasRenderingContext2D | null>(null)
   const [streamingCritique, setStreamingCritique] = useState('')
+  const resultRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     initCanvas()
@@ -143,7 +144,7 @@ const CalligraphyCritique = () => {
   }
 
   const handleSubmit = async () => {
-    if (!canvasRef.current) return
+    if (!canvasRef.current || !gridCanvasRef.current) return
     setLoading(true)
     setStreamingCritique('')
     
@@ -161,10 +162,13 @@ const CalligraphyCritique = () => {
       tempCtx.fillStyle = '#FFFFFF'
       tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height)
 
+      // Draw the grid canvas content first
+      tempCtx.drawImage(gridCanvasRef.current, 0, 0, tempCanvas.width, tempCanvas.height)
+      
       // Draw the original canvas content on top
       tempCtx.drawImage(canvasRef.current, 0, 0)
 
-      // Get the image data with white background
+      // Get the image data with white background and grid
       const imageData = tempCanvas.toDataURL('image/png')
 
       // First, upload the image to your CDN
@@ -225,6 +229,135 @@ const CalligraphyCritique = () => {
     }
   }
 
+  const handleShare = async () => {
+    if (!resultRef.current || !canvasRef.current) return
+    
+    try {
+      // Create a temporary container for the share image
+      const container = document.createElement('div')
+      container.style.position = 'absolute'
+      container.style.left = '-9999px'
+      container.style.background = 'white'
+      container.style.padding = '30px'
+      container.style.width = '400px'
+      
+      // Add title
+      const titleDiv = document.createElement('div')
+      titleDiv.style.fontSize = '24px'
+      titleDiv.style.fontWeight = 'bold'
+      titleDiv.style.color = '#000'
+      titleDiv.style.marginBottom = '20px'
+      titleDiv.textContent = '书法练习'
+      container.appendChild(titleDiv)
+
+      // Add grid container
+      const gridContainer = document.createElement('div')
+      gridContainer.style.position = 'relative'
+      gridContainer.style.width = '100%'
+      gridContainer.style.aspectRatio = '1'
+      gridContainer.style.border = '1px solid #000'
+      
+      // Add grid lines
+      const gridLines = document.createElement('div')
+      gridLines.style.position = 'absolute'
+      gridLines.style.inset = '0'
+      gridLines.style.background = `
+        linear-gradient(to right, transparent 49.9%, #000 50%, #000 50.1%, transparent 50.2%),
+        linear-gradient(to bottom, transparent 49.9%, #000 50%, #000 50.1%, transparent 50.2%)
+      `
+      gridContainer.appendChild(gridLines)
+      
+      // Add diagonal lines
+      const diagonalLines = document.createElement('div')
+      diagonalLines.style.position = 'absolute'
+      diagonalLines.style.inset = '0'
+      diagonalLines.style.background = `
+        linear-gradient(45deg, transparent 49.9%, #000 50%, #000 50.1%, transparent 50.2%),
+        linear-gradient(-45deg, transparent 49.9%, #000 50%, #000 50.1%, transparent 50.2%)
+      `
+      gridContainer.appendChild(diagonalLines)
+      
+      // Add the canvas content
+      const canvasImage = document.createElement('img')
+      canvasImage.src = canvasRef.current.toDataURL()
+      canvasImage.style.position = 'absolute'
+      canvasImage.style.inset = '0'
+      canvasImage.style.width = '100%'
+      canvasImage.style.height = '100%'
+      canvasImage.style.objectFit = 'contain'
+      gridContainer.appendChild(canvasImage)
+      
+      container.appendChild(gridContainer)
+      
+      // Add the critique content
+      if (resultRef.current) {
+        const critiqueDiv = document.createElement('div')
+        critiqueDiv.style.color = '#000'
+        critiqueDiv.style.marginTop = '20px'
+        critiqueDiv.style.padding = '20px'
+        critiqueDiv.style.background = '#f3f4f6'
+        critiqueDiv.style.borderRadius = '8px'
+        critiqueDiv.innerHTML = resultRef.current.innerHTML
+        
+        // Fix the critique text color and styles
+        const elements = critiqueDiv.getElementsByTagName('*')
+        for (let i = 0; i < elements.length; i++) {
+          const element = elements[i] as HTMLElement
+          element.style.color = '#000'
+          // Remove any Tailwind classes that might interfere
+          element.className = ''
+        }
+        
+        container.appendChild(critiqueDiv)
+      }
+      
+      // Add watermark
+      const watermark = document.createElement('div')
+      watermark.style.marginTop = '20px'
+      watermark.style.textAlign = 'center'
+      watermark.style.color = '#666'
+      watermark.style.fontSize = '14px'
+      watermark.textContent = '由 AI 书法助手生成'
+      container.appendChild(watermark)
+      
+      document.body.appendChild(container)
+      
+      // Generate the image
+      const canvas = await html2canvas(container, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        logging: false,
+        useCORS: true,
+        allowTaint: true,
+      })
+      
+      const blob = await new Promise<Blob>((resolve) => {
+        canvas.toBlob((blob) => {
+          resolve(blob as Blob)
+        }, 'image/png')
+      })
+      
+      if (navigator.share) {
+        const file = new File([blob], 'calligraphy.png', { type: 'image/png' })
+        await navigator.share({
+          files: [file],
+          title: '书法练习点评',
+        })
+      } else {
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'calligraphy.png'
+        a.click()
+        URL.revokeObjectURL(url)
+      }
+      
+      document.body.removeChild(container)
+    } catch (error) {
+      console.error('分享失败:', error)
+    }
+  }
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4 md:py-12">
       <motion.div
@@ -235,7 +368,7 @@ const CalligraphyCritique = () => {
         <Card className="w-full max-w-4xl mx-auto backdrop-blur-lg bg-white/10 border-none shadow-2xl">
           <CardHeader className="text-center p-4 md:p-6">
             <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 text-transparent bg-clip-text">
-              每日一练
+              书法练习
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 md:space-y-6">
@@ -289,6 +422,7 @@ const CalligraphyCritique = () => {
 
                 {streamingCritique && (
                   <motion.div 
+                    ref={resultRef}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="p-4 md:p-6 rounded-lg bg-white/5"
@@ -299,6 +433,17 @@ const CalligraphyCritique = () => {
                     <div className="prose prose-invert prose-purple max-w-none prose-sm md:prose-base">
                       <ReactMarkdown>{streamingCritique}</ReactMarkdown>
                     </div>
+                  </motion.div>
+                )}
+
+                {streamingCritique && (
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button 
+                      onClick={handleShare}
+                      className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white py-2 md:py-3"
+                    >
+                      分享练习结果
+                    </Button>
                   </motion.div>
                 )}
               </div>
