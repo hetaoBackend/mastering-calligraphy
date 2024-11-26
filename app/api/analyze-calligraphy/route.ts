@@ -55,9 +55,14 @@ export async function POST(req: NextRequest) {
       model: "qwen-vl-max",
       messages: [
         {
+          role: "system",
+          content: [
+            { type: "text", text: prompt }
+          ],
+        },
+        {
           role: "user",
           content: [
-            { type: "text", text: prompt },
             { type: "image_url", image_url: imageUrl }
           ],
         },
@@ -72,25 +77,36 @@ export async function POST(req: NextRequest) {
         for await (const chunk of response) {
           const content = chunk.choices[0]?.delta?.content || '';
           if (content) {
-            await writer.write(encoder.encode(`data: ${JSON.stringify({ content })}\n\n`));
+            console.log('Original content:', content);
+            
+            const jsonString = JSON.stringify({ content });
+            console.log('JSON stringified:', jsonString);
+            
+            const encoded = encoder.encode(`data: ${jsonString}\n\n`);
+            console.log('Encoded length:', encoded.length);
+            console.log('Encoded bytes:', Array.from(encoded).map(b => b.toString(16)));
+            
+            await writer.write(encoded);
           }
         }
       } finally {
+        console.log('Stream completed');
         await writer.close();
       }
     }
 
     processStream();
 
+    // Add proper headers for UTF-8 encoding
     return new Response(stream.readable, {
       headers: {
-        'Content-Type': 'text/event-stream',
+        'Content-Type': 'text/event-stream; charset=utf-8',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
       },
     });
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Stream error:', error);
     return NextResponse.json({ error: 'Failed to analyze image' }, { status: 500 })
   }
 }
