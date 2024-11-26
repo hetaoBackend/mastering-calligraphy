@@ -328,6 +328,23 @@ const CalligraphyCritique = () => {
         container.appendChild(critiqueDiv)
       }
       
+      // Add QR code before the watermark
+      const qrCodeDiv = document.createElement('div')
+      qrCodeDiv.style.position = 'absolute'
+      qrCodeDiv.style.top = '20px'
+      qrCodeDiv.style.right = '20px'
+      qrCodeDiv.style.width = '100px'
+      qrCodeDiv.style.height = '100px'
+      
+      const qrCode = document.createElement('img')
+      qrCode.src = '/qr-code.png' // Make sure to add your QR code image to the public folder
+      qrCode.style.width = '100%'
+      qrCode.style.height = '100%'
+      qrCode.style.objectFit = 'contain'
+      
+      qrCodeDiv.appendChild(qrCode)
+      container.appendChild(qrCodeDiv)
+
       // Add watermark with improved styling
       const watermark = document.createElement('div')
       watermark.style.marginTop = '30px'

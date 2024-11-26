@@ -84,7 +84,6 @@ export async function POST(req: NextRequest) {
             
             const encoded = encoder.encode(`data: ${jsonString}\n\n`);
             console.log('Encoded length:', encoded.length);
-            console.log('Encoded bytes:', Array.from(encoded).map(b => b.toString(16)));
             
             await writer.write(encoded);
           }
