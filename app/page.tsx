@@ -141,6 +141,8 @@ const CalligraphyCritique = () => {
       canvasRef.current.width,
       canvasRef.current.height
     )
+    // Clear the critique content
+    setStreamingCritique('')
   }
 
   const handleSubmit = async () => {
@@ -351,8 +353,12 @@ const CalligraphyCritique = () => {
         }, 'image/png')
       })
       
+      // Generate timestamp for unique filename
+      const timestamp = new Date().getTime()
+      const filename = `calligraphy_${timestamp}.png`
+      
       if (navigator.share) {
-        const file = new File([blob], 'calligraphy.png', { type: 'image/png' })
+        const file = new File([blob], filename, { type: 'image/png' })
         await navigator.share({
           files: [file],
           title: '书法练习点评',
@@ -361,7 +367,7 @@ const CalligraphyCritique = () => {
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = 'calligraphy.png'
+        a.download = filename
         a.click()
         URL.revokeObjectURL(url)
       }
