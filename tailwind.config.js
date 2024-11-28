@@ -56,6 +56,37 @@ module.exports = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      keyframes: {
+        'pulse-glow': {
+          '0%, 100%': {
+            boxShadow: '0 0 0 0 rgba(147, 51, 234, 0)',
+          },
+          '50%': {
+            boxShadow: '0 0 20px 10px rgba(147, 51, 234, 0.3)',
+          },
+        },
+        'pulse-opacity': {
+          '0%, 100%': {
+            opacity: '1',
+          },
+          '50%': {
+            opacity: '0.7',
+          },
+        },
+        shimmer: {
+          '0%': {
+            backgroundPosition: '200% 0',
+          },
+          '100%': {
+            backgroundPosition: '-200% 0',
+          }
+        }
+      },
+      animation: {
+        'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'pulse-opacity': 'pulse-opacity 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        shimmer: 'shimmer 2.5s linear infinite',
+      },
     },
   },
   plugins: [

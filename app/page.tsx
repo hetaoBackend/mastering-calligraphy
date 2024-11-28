@@ -23,6 +23,7 @@ const CalligraphyCritique = () => {
   const contextRef = useRef<CanvasRenderingContext2D | null>(null)
   const [streamingCritique, setStreamingCritique] = useState('')
   const resultRef = useRef<HTMLDivElement>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
 
   useEffect(() => {
     initCanvas()
@@ -149,6 +150,7 @@ const CalligraphyCritique = () => {
     if (!canvasRef.current || !gridCanvasRef.current) return
     setLoading(true)
     setStreamingCritique('')
+    setIsAnalyzing(true)
     
     try {
       // Create a temporary canvas with white background
@@ -228,6 +230,7 @@ const CalligraphyCritique = () => {
       setStreamingCritique('分析失败，请重试。')
     } finally {
       setLoading(false)
+      setIsAnalyzing(false)
     }
   }
 
@@ -331,10 +334,14 @@ const CalligraphyCritique = () => {
       // Add QR code before the watermark
       const qrCodeDiv = document.createElement('div')
       qrCodeDiv.style.position = 'absolute'
-      qrCodeDiv.style.top = '20px'
-      qrCodeDiv.style.right = '20px'
-      qrCodeDiv.style.width = '100px'
-      qrCodeDiv.style.height = '100px'
+      qrCodeDiv.style.bottom = '40px'
+      qrCodeDiv.style.right = '40px'
+      qrCodeDiv.style.width = '150px'
+      qrCodeDiv.style.height = '150px'
+      qrCodeDiv.style.background = 'white'
+      qrCodeDiv.style.padding = '10px'
+      qrCodeDiv.style.borderRadius = '8px'
+      qrCodeDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'
       
       const qrCode = document.createElement('img')
       qrCode.src = '/qr-code.png' // Make sure to add your QR code image to the public folder
@@ -353,7 +360,7 @@ const CalligraphyCritique = () => {
       watermark.style.fontSize = '14px'
       watermark.style.padding = '10px'
       watermark.style.borderTop = '1px solid #eee'
-      watermark.textContent = 'Powered By hetao7@pku.edu.cn'
+      watermark.textContent = 'Powered By Calligraphy Tutor'
       container.appendChild(watermark)
       
       document.body.appendChild(container)
@@ -412,7 +419,7 @@ const CalligraphyCritique = () => {
             <div className="relative group">
               <div className="w-full h-auto bg-transparent">
                 <div className="relative w-full md:w-1/2 mx-auto" style={{ aspectRatio: '1/1' }}>
-                  <div className="absolute inset-0 border border-gray-200 bg-white">
+                  <div className="absolute inset-[10%] border border-gray-200 bg-white overflow-hidden">
                     <canvas
                       ref={gridCanvasRef}
                       className="absolute inset-0 w-full h-full"
@@ -432,6 +439,15 @@ const CalligraphyCritique = () => {
                         cursor: isDrawing ? `url(${activeBrushCursor}) 0 24, auto` : `url(${brushCursor}) 0 24, auto`
                       }}
                     />
+                    {isAnalyzing && (
+                      <div className="absolute inset-0 animate-shimmer"
+                           style={{
+                             backgroundImage: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6) 20%, rgba(45, 45, 45, 0.6) 50%, rgba(255, 255, 255, 0.6) 80%, transparent)',
+                             backgroundSize: '200% 100%',
+                             animation: 'shimmer 2.5s linear infinite'
+                           }}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
