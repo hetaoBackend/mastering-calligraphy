@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
 
     // Start the AI request
     const response = await openai.chat.completions.create({
-      model: "qwen-vl-max",
+      model: "qwen-vl-max-latest",
       messages: [
         {
           role: "system",
