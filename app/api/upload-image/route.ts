@@ -26,6 +26,9 @@ export async function POST(req: NextRequest) {
     // Upload to OSS
     const result = await client.put(fileName, imageBuffer, {
       mime: 'image/png',
+      headers: {
+        'Cache-Control': 'public, max-age=3600', // 设置缓存最大有效期为1小时
+      }
     })
 
     // 直接使用 OSS 返回的 URL
