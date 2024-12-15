@@ -175,28 +175,13 @@ const CalligraphyCritique = () => {
       // Get the image data with white background and grid
       const imageData = tempCanvas.toDataURL('image/png')
 
-      // First, upload the image to your CDN
-      const uploadResponse = await fetch('/api/upload-image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ image: imageData }),
-      })
-
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to upload image')
-      }
-
-      const { url: cdnUrl } = await uploadResponse.json()
-
-      // Update the analyze request to handle streaming
+      // Directly use the base64 image data
       const response = await fetch('/api/analyze-calligraphy', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ imageUrl: cdnUrl }),
+        body: JSON.stringify({ imageUrl: imageData }),
       })
 
       if (!response.ok) throw new Error('Failed to analyze calligraphy')
